@@ -1,0 +1,53 @@
+@font-face {
+    font-family: Rowan;
+    src: url("Rowan-Bold.otf");
+}
+
+body{
+    background: black;
+    font-family: Rowan;
+}
+
+h1{
+    position: absolute;
+    top:30%;
+    left:10%;
+    transform: translateY(-50%);
+    color:white;
+    font-size: 6vw;
+}
+
+#query{
+    position: absolute;
+    top:50%;
+    left:10%;
+    width:100%;
+}
+
+#response{
+    width:75%;
+
+}
+
+input[type=text] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: none;
+    background: none;
+    border-bottom: 2px solid white;
+    color: white;
+
+}
+
+input[type=submit] {
+    padding:5px 15px;
+    background:none;
+    color:white;
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    text-decoration: underline;
+}
