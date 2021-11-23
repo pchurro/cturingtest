@@ -15,7 +15,7 @@ const turingBot = new Twit({
 
 function publTweet() {
 
-    var postTweet = "Hello World!";
+    var postTweet = "O Professor Tiago é o maior";
     turingBot.post(
 
         'statuses/update',
