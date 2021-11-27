@@ -13,13 +13,12 @@ const turingBot = new Twit({
     timeout_ms: 60 * 1000
 });
 
-function publTweet() {
+function publTweet(tweet) {
 
-    var postTweet = "O Professor Tiago é o maior";
     turingBot.post(
 
         'statuses/update',
-        {status: postTweet},
+        {status: tweet},
         function(err, data, response) {
 
             if (err) {
