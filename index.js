@@ -13,6 +13,8 @@ app.use(express.json({ limit: '1mb' }));
 const database = new Datastore('database.db');
 database.loadDatabase();
 
+var mainTweetId = 0;
+
 app.post('/api', (request, response) => {
     const data = request.body;
     const timestamp = Date.now();
@@ -25,17 +27,20 @@ app.post('/api', (request, response) => {
 function runAnswers(data){
     database.count({ chosenQuestion: data.chosenQuestion }, function (err, count) {
         if(Number.isInteger(count/3)){
-            database.find({ chosenQuestion: data.chosenQuestion }, function (err, docs) {
-                for (var i=count-1; i>count-4; i--){
-                    console.log(docs[i].answer);
-                    publTweet(docs[i].answer);
-                }
-            });
-            var roboAnswer = scraper(data.chosenQuestion);
+
+            publMainTweet(data.chosenQuestion);
+
+            var roboAnswer = scraper(data.chosenResponse);
             roboAnswer.then(function(result) {
+                database.find({ chosenQuestion: data.chosenQuestion }, function (err, docs) {
+                    for (var i=count-1; i>count-4; i--){
+                        console.log(docs[i].answer);
+                        publTweet(docs[i].answer,mainTweetId);
+                    }
+                });
                 var finalRoboAnswer = result.split(".");
                 console.log(finalRoboAnswer[0]);
-                publTweet(finalRoboAnswer[0]);
+                publTweet(finalRoboAnswer[0],mainTweetId);
             })
         }
     });
@@ -54,12 +59,12 @@ const turingBot = new Twit({
     timeout_ms: 60 * 1000
 });
 
-function publTweet(tweet) {
+function publMainTweet(tweet) {
 
     turingBot.post(
 
         'statuses/update',
-        {status: tweet},
+        {status: tweet + " [Q" + makeid(3) + "]"},
         function(err, data, response) {
 
             if (err) {
@@ -68,22 +73,38 @@ function publTweet(tweet) {
                 return false;
             }
 
-            console.log("Sucess");
+            mainTweetId=data.id_str;
+            console.log(mainTweetId);
 
         }
     )
 }
 
-async function scraper(chosenQuestion) {
+function publTweet(tweet,id) {
+
+    turingBot.post(
+
+        'statuses/update',
+        {status: tweet, in_reply_to_status_id:id},
+        function(err, data, response) {
+
+            if (err) {
+
+                console.log("ERRO: " + err);
+                return false;
+            }
+
+        }
+    )
+}
+
+async function scraper(chosenResponse) {
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
     await page.goto('https://6b.eleuther.ai')
 
     await page.focus('.prompt-textarea')
-    if (chosenQuestion==="Why are we self-conscious?") await page.keyboard.type("We are self conscious because")
-    if (chosenQuestion==="Do we have free will?") await page.keyboard.type("We have free will")
-    if (chosenQuestion==="What is the future of humanity?") await page.keyboard.type("The future of humanity is")
-    if (chosenQuestion==="What are feelings?") await page.keyboard.type("Feelings are")
+    await page.keyboard.type(chosenResponse)
 
     await page.click('.button-primary')
 
@@ -91,4 +112,15 @@ async function scraper(chosenQuestion) {
     const name = await page.$eval('.result-text', el => el.innerText)
     await browser.close()
     return name;
+}
+
+function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() *
+            charactersLength));
+    }
+    return result;
 }

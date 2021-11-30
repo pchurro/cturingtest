@@ -1,15 +1,23 @@
-var questions = ["Do we have free will?", "What is the future of humanity?", "Why are we self-conscious?", "What are feelings?"];
-
+var questions = ["What is the meaning of life?", "What is the future of humanity?", "Why are we self-conscious?", "What are feelings?", "What’s the difference between living and existing?", "What is the universal language?", "How do we measure our lives?", "How do you perceive yourself?"];
+var responses = ["The meaning of life is", "The future of humanity is", "We are self-conscious because", "Feelings are", "The difference between living and existing is", "The universal language is", "We measure our lives by", "I perceive myself as"]
 var questionElement = document.getElementById("question");
-var chosenQuestion = questions[getRandomInt(0,3)];
+var inputElement = document.getElementById("response");
+
+var randQ= getRandomInt(0,8);
+var chosenQuestion = questions[randQ];
+var chosenResponse = responses[randQ];
 questionElement.textContent= chosenQuestion;
+inputElement.value=chosenResponse;
+
+
 
 var form=document.forms["form"];
 
 async function saveAnswer(){
     console.log("Sucesso");
     var answer = form['answer'].value;
-    const data = { chosenQuestion, answer };
+
+    const data = { chosenQuestion, chosenResponse, answer };
     const options = {
         method: 'POST',
         headers: {
