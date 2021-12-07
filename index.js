@@ -2,6 +2,7 @@ const express = require('express');
 const Datastore = require('nedb');
 const puppeteer = require('puppeteer');
 const Twit = require("twit");
+const p5 = require('node-p5');
 require("dotenv").config();
 
 
@@ -14,6 +15,12 @@ const database = new Datastore('database.db');
 database.loadDatabase();
 
 var mainTweetId = 0;
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
+}
 
 app.post('/api', (request, response) => {
     const data = request.body;
@@ -124,3 +131,75 @@ function makeid(length) {
     }
     return result;
 }
+
+let font;
+font = p5.loadFont('font.ttf');
+
+let resourcesToPreload = {
+    fundo: p5.loadImage('papel.jpg')
+}
+
+let stringTest='The future of humanity is in the balance, but a group of five young adults has been born with a rare and deadly genetic mutation that gives them the power to help us save the planet';
+
+
+function sketch(p, preloaded) {
+    let fundo = preloaded.fundo;
+    p.setup = () => {
+        let canvas = p.createCanvas(675, 900);
+        setTimeout(() => {
+            p.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
+                console.log(`saved the canvas as ${filename}`);
+            });
+        }, 100);
+    }
+    p.draw = () => {
+        p.background(50);
+        p.image(fundo,0,0);
+
+        p.push();
+        p.rotate(p.radians(getRandomInt(-3,3)));
+        p.textFont(font);
+        p.textSize(24);
+        p.text('test [QU3E]', 500, 100);
+        p.pop();
+
+        p.push();
+        p.rotate(p.radians(getRandomInt(-3,3)));
+        p.textFont(font);
+        p.textSize(60);
+        p.text('What is the future of humanity?', 150, 150,450,300);
+        p.pop();
+
+        p.push();
+        p.rotate(p.radians(getRandomInt(-3,3)));
+        p.textFont(font);
+        p.textSize(28 - 1000/stringTest.length);
+        p.text(stringTest, 120, 350,500,300);
+        p.pop();
+
+        p.push();
+        p.rotate(p.radians(getRandomInt(-3,3)));
+        p.textFont(font);
+        p.textSize(28 - 1000/stringTest.length);
+        p.text('The future of humanity is a slow and painful death', 120, 475,500,300);
+        p.pop();
+
+        p.push();
+        p.rotate(p.radians(getRandomInt(-3,3)));
+        p.textFont(font);
+        p.textSize(28 - 1000/stringTest.length);
+        p.text('The future of humanity is a possibility which we can\'t predict', 120, 600,500,300);
+        p.pop();
+
+        p.push();
+        p.rotate(p.radians(getRandomInt(-3,3)));
+        p.textFont(font);
+        p.textSize(28 - 1000/stringTest.length);
+        p.text('The future of humanity is a peaceful utopia', 120, 725,500,300);
+        p.pop();
+
+
+    }
+}
+
+let p5Instance = p5.createSketch(sketch, resourcesToPreload);
