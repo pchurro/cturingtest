@@ -3,57 +3,29 @@ const Datastore = require('nedb');
 const puppeteer = require('puppeteer');
 const Twit = require("twit");
 const p5 = require('node-p5');
+const fs = require('fs');
 require("dotenv").config();
 
 
 const app = express();
 app.listen(3000, () => console.log('listening at 3000'));
 app.use(express.static('public'));
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({limit: '1mb'}));
 
 const database = new Datastore('database.db');
 database.loadDatabase();
 
 var mainTweetId = 0;
+var question;
+var answers = [];
+var testId;
+let p5Instance;
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
 }
-
-app.post('/api', (request, response) => {
-    const data = request.body;
-    const timestamp = Date.now();
-    data.timestamp = timestamp;
-    database.insert(data);
-    response.json(data);
-    runAnswers(data);
-});
-
-function runAnswers(data){
-    database.count({ chosenQuestion: data.chosenQuestion }, function (err, count) {
-        if(Number.isInteger(count/3)){
-
-            publMainTweet(data.chosenQuestion);
-
-            var roboAnswer = scraper(data.chosenResponse);
-            roboAnswer.then(function(result) {
-                database.find({ chosenQuestion: data.chosenQuestion }, function (err, docs) {
-                    for (var i=count-1; i>count-4; i--){
-                        console.log(docs[i].answer);
-                        publTweet(docs[i].answer,mainTweetId);
-                    }
-                });
-                var finalRoboAnswer = result.split(".");
-                console.log(finalRoboAnswer[0]);
-                publTweet(finalRoboAnswer[0],mainTweetId);
-            })
-        }
-    });
-
-}
-
 
 const turingBot = new Twit({
 
@@ -69,10 +41,9 @@ const turingBot = new Twit({
 function publMainTweet(tweet) {
 
     turingBot.post(
-
         'statuses/update',
         {status: tweet + " [Q" + makeid(3) + "]"},
-        function(err, data, response) {
+        function (err, data, response) {
 
             if (err) {
 
@@ -80,20 +51,19 @@ function publMainTweet(tweet) {
                 return false;
             }
 
-            mainTweetId=data.id_str;
+            mainTweetId = data.id_str;
             console.log(mainTweetId);
 
         }
     )
 }
 
-function publTweet(tweet,id) {
+function publTweet(tweet, id) {
 
     turingBot.post(
-
         'statuses/update',
-        {status: tweet, in_reply_to_status_id:id},
-        function(err, data, response) {
+        {status: tweet, in_reply_to_status_id: id},
+        function (err, data, response) {
 
             if (err) {
 
@@ -122,10 +92,10 @@ async function scraper(chosenResponse) {
 }
 
 function makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
+    for (var i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(Math.random() *
             charactersLength));
     }
@@ -135,71 +105,216 @@ function makeid(length) {
 let font;
 font = p5.loadFont('font.ttf');
 
-let resourcesToPreload = {
-    fundo: p5.loadImage('papel.jpg')
-}
-
-let stringTest='The future of humanity is in the balance, but a group of five young adults has been born with a rare and deadly genetic mutation that gives them the power to help us save the planet';
-
+let messages = ["Subject #1 was strange...", "Subject #2 was strange...", "Subject #3 was strange...", "Subject #4 was strange...", "The lack of criativity!", "Intresting", "(???)", "WTF!?", "Suspicious...", "Weird choice of words", "AHAHAHHAHAHA", "Really?", "Good point!", "No idea what this means", "This one didn't go well...", "Exciting!"]
 
 function sketch(p, preloaded) {
-    let fundo = preloaded.fundo;
+
+    let doodles = ["p5/doodle1.png", "p5/doodle2.png", "p5/doodle3.png", "p5/doodle4.png", "p5/doodle5.png", "p5/doodle6.png", "p5/doodle7.png", "p5/doodle8.png", "p5/doodle9.png", "p5/doodle10.png", "p5/doodle11.png", "p5/doodle12.png", "p5/doodle13.png"]
     p.setup = () => {
         let canvas = p.createCanvas(675, 900);
+        p.loadImage('papel.jpg').then(img => {
+            setTimeout(() => {
+                p.image(img, 0, 0)
+            }, 1000);
+        })
+
+
+        if (Math.random() > 0.8) {
+            p.loadImage(doodles[getRandomInt(0, 13)]).then(img => {
+                setTimeout(() => {
+                    p.image(img, [getRandomInt(50, 400)], 100, 50, 100);
+                }, 1100);
+            })
+        }
+
+        if (Math.random() > 0.8) {
+            p.loadImage(doodles[getRandomInt(0, 13)]).then(img => {
+                setTimeout(() => {
+                    p.image(img, [getRandomInt(50, 400)], 750, 100, 100);
+                }, 1100);
+            })
+        }
+
+        setTimeout(() => {
+            //IDENTIFICAÇÃO
+            p.push();
+            p.rotate(p.radians(getRandomInt(-1, 1)));
+            p.textFont(font);
+            p.textSize(24);
+            p.text(testId, 500, 100);
+            p.pop();
+
+            //TÍTULO
+            p.push();
+            p.rotate(p.radians(getRandomInt(-4, 4)));
+            p.textLeading(60);
+            p.textFont(font);
+            p.textSize(60);
+            p.text(question, 150, 100, 450, 300);
+            p.pop();
+
+            //MENSAGEM ALEATORIA #1
+            if (Math.random() > 0.75) {
+                p.push();
+                p.rotate(p.radians(getRandomInt(-1, 1)));
+                p.textFont(font);
+                p.textSize(24);
+                p.text(messages[getRandomInt(0, 13)], getRandomInt(400, 500), 300);
+                p.pop();
+            }
+
+            //RESPOSTA #1
+            p.push();
+            p.rotate(p.radians(getRandomInt(-3, 3)));
+            p.textFont(font);
+            p.textSize(64);
+            p.text(".", 100, 325);
+            p.textSize(28 - answers[0].length / 100);
+            p.text(answers[0], 120, 350, 500, 300);
+            p.pop();
+
+            //MENSAGEM ALEATORIA #2
+            if (Math.random() > 0.75) {
+                p.push();
+                p.rotate(p.radians(getRandomInt(-1, 1)));
+                p.textFont(font);
+                p.textSize(18);
+                p.text(messages[getRandomInt(0, 13)], getRandomInt(400, 500), 550);
+                p.pop();
+            }
+
+            //RESPOSTA #2
+            p.push();
+            p.rotate(p.radians(getRandomInt(-3, 3)));
+            p.textFont(font);
+            p.textSize(64);
+            p.text(".", 100, 500);
+            p.textSize(28 - answers[1].length / 75);
+            p.text(answers[1], 120, 475, 500, 300);
+            p.pop();
+
+            //MENSAGEM ALETÓRIA #3
+            if (Math.random() > 0.75) {
+                p.push();
+                p.rotate(p.radians(getRandomInt(-1, 1)));
+                p.textFont(font);
+                p.textSize(18);
+                p.text(messages[getRandomInt(0, 13)], getRandomInt(400, 500), 700);
+                p.pop();
+            }
+
+            //RESPOSTA #3
+            p.push();
+            p.rotate(p.radians(getRandomInt(-3, 3)));
+            p.textFont(font);
+            p.textSize(64);
+            p.text(".", 100, 625);
+            p.textSize(28 - answers[2].length / 75);
+            p.text(answers[2], 120, 600, 500, 300);
+            p.pop();
+
+            //MENSAGEM ALEATÓRIA #4
+            if (Math.random() > 0.75) {
+                p.push();
+                p.rotate(p.radians(getRandomInt(-1, 1)));
+                p.textFont(font);
+                p.textSize(18);
+                p.text(messages[getRandomInt(0, 13)], getRandomInt(400, 500), 800);
+                p.pop();
+            }
+
+            //RESPOSTA #4
+            p.push();
+            p.rotate(p.radians(getRandomInt(-3, 3)));
+            p.textFont(font);
+            p.textSize(64);
+            p.text(".", 100, 750);
+            p.textSize(28 - answers[3].length / 75);
+            p.text(answers[3], 120, 725, 500, 300);
+            p.pop();
+        }, 1500);
+
         setTimeout(() => {
             p.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
                 console.log(`saved the canvas as ${filename}`);
             });
-        }, 100);
+        }, 2000);
     }
+
     p.draw = () => {
-        p.background(50);
-        p.image(fundo,0,0);
-
-        p.push();
-        p.rotate(p.radians(getRandomInt(-3,3)));
-        p.textFont(font);
-        p.textSize(24);
-        p.text('test [QU3E]', 500, 100);
-        p.pop();
-
-        p.push();
-        p.rotate(p.radians(getRandomInt(-3,3)));
-        p.textFont(font);
-        p.textSize(60);
-        p.text('What is the future of humanity?', 150, 150,450,300);
-        p.pop();
-
-        p.push();
-        p.rotate(p.radians(getRandomInt(-3,3)));
-        p.textFont(font);
-        p.textSize(28 - 1000/stringTest.length);
-        p.text(stringTest, 120, 350,500,300);
-        p.pop();
-
-        p.push();
-        p.rotate(p.radians(getRandomInt(-3,3)));
-        p.textFont(font);
-        p.textSize(28 - 1000/stringTest.length);
-        p.text('The future of humanity is a slow and painful death', 120, 475,500,300);
-        p.pop();
-
-        p.push();
-        p.rotate(p.radians(getRandomInt(-3,3)));
-        p.textFont(font);
-        p.textSize(28 - 1000/stringTest.length);
-        p.text('The future of humanity is a possibility which we can\'t predict', 120, 600,500,300);
-        p.pop();
-
-        p.push();
-        p.rotate(p.radians(getRandomInt(-3,3)));
-        p.textFont(font);
-        p.textSize(28 - 1000/stringTest.length);
-        p.text('The future of humanity is a peaceful utopia', 120, 725,500,300);
-        p.pop();
 
 
     }
 }
 
-let p5Instance = p5.createSketch(sketch, resourcesToPreload);
+app.post('/api', (request, response) => {
+    const data = request.body;
+    const timestamp = Date.now();
+    data.timestamp = timestamp;
+    database.insert(data);
+    response.json(data);
+    runAnswers(data);
+});
+
+function runAnswers(data) {
+    database.count({chosenQuestion: data.chosenQuestion}, function (err, count) {
+        if (Number.isInteger(count / 3)) {
+
+            //publMainTweet(data.chosenQuestion);
+            testId = 'Test' + " [Q" + makeid(3) + "]";
+            question = data.chosenQuestion;
+            answers = [];
+            var roboAnswer = scraper(data.chosenResponse);
+            roboAnswer.then(function (result) {
+                database.find({chosenQuestion: data.chosenQuestion}, function (err, docs) {
+                    answers[0] = docs[count - 1].answer;
+                    answers[1] = docs[count - 2].answer;
+                    answers[2] = docs[count - 3].answer;
+                    /*for (var i = count - 1; i > count - 4; i--) {
+                        console.log(docs[i].answer);
+                        console.log(count - i);
+                        //publTweet(docs[i].answer,mainTweetId);
+                        answers[count - i - 1] = docs[i].answer;
+                    }*/
+                });
+                var finalRoboAnswer = result.split(".");
+                console.log(finalRoboAnswer[0]);
+                // publTweet(finalRoboAnswer[0],mainTweetId);
+                answers[3] = finalRoboAnswer[0];
+                setTimeout(() => {
+                    p5Instance = p5.createSketch(sketch);
+                }, 40000);
+
+                setTimeout(() => {
+
+                    var b64content = fs.readFileSync('myCanvas.png', {encoding: 'base64'})
+
+                    // first we must post the media to Twitter
+                    turingBot.post('media/upload', {media_data: b64content}, function (err, data, response) {
+                        // now we can assign alt text to the media, for use by screen readers and
+                        // other text-based presentations and interpreters
+                        var mediaIdStr = data.media_id_string
+                        var meta_params = {media_id: mediaIdStr}
+
+                        turingBot.post('media/metadata/create', meta_params, function (err, data, response) {
+                            if (!err) {
+                                // now we can reference the media and post a tweet (media will attach to the tweet)
+                                var params = {status: testId, media_ids: [mediaIdStr]}
+
+                                turingBot.post('statuses/update', params, function (err, data, response) {
+                                    console.log(data)
+                                })
+                            }
+                        })
+                    })
+                }, 45000);
+            })
+
+        }
+
+    });
+
+
+
+
+}

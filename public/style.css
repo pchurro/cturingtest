@@ -6,6 +6,7 @@
 body{
     background: black;
     font-family: Rowan;
+    overflow-x: hidden;
 }
 
 h1{
@@ -94,4 +95,33 @@ input[type=text] {
         -webkit-transform: translateX(100%); /* Firefox bug fix */
         transform: translateX(100%);
     }
+}
+
+#down_arrow{
+    color:white;
+    position: absolute;
+    font-size: 4vw;
+    top:95%;
+    left:50%;
+    transform: translate(-50%,-50%);
+}
+
+#instructions{
+    color:white;
+    margin:5vw;
+    position: absolute;
+    top:105%;
+    width:50%;
+}
+
+.instructionsTitle{
+    font-size: 4vw;
+}
+
+#instructions p{
+    font-size:2vw;
+}
+
+a{
+    color:white;
 }
