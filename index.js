@@ -16,15 +16,33 @@ const database = new Datastore('database.db');
 database.loadDatabase();
 
 var mainTweetId = 0;
-var question;
-var answers = [];
-var testId;
+var question = "What is the future of humanity?";
+var answers = ["The future of humanity is death, destruction and all kind of unspeakable horrors", "The future of humanity relies on the stars above", "The future of humanity is not a very pleasent one", "The future of humanity is being decided right now"];
+var testId = 'Test' + " [Q" + makeid(3) + "]";
 let p5Instance;
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function shuffle(array) {
+    let currentIndex = array.length,  randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
 }
 
 const turingBot = new Twit({
@@ -109,12 +127,13 @@ let messages = ["Subject #1 was strange...", "Subject #2 was strange...", "Subje
 
 function sketch(p, preloaded) {
 
+    let fundos = ["p5/fundo-03.png","p5/fundo-04.png","p5/fundo-05.png","p5/fundo-06.png","p5/fundo-07.png","p5/fundo-08.png","p5/fundo-09.png"]
     let doodles = ["p5/doodle1.png", "p5/doodle2.png", "p5/doodle3.png", "p5/doodle4.png", "p5/doodle5.png", "p5/doodle6.png", "p5/doodle7.png", "p5/doodle8.png", "p5/doodle9.png", "p5/doodle10.png", "p5/doodle11.png", "p5/doodle12.png", "p5/doodle13.png"]
     p.setup = () => {
         let canvas = p.createCanvas(675, 900);
-        p.loadImage('papel.jpg').then(img => {
+        p.loadImage(fundos[getRandomInt(0, 7)]).then(img => {
             setTimeout(() => {
-                p.image(img, 0, 0)
+                p.image(img, 0, 0, 675,900)
             }, 1000);
         })
 
@@ -122,16 +141,16 @@ function sketch(p, preloaded) {
         if (Math.random() > 0.8) {
             p.loadImage(doodles[getRandomInt(0, 13)]).then(img => {
                 setTimeout(() => {
-                    p.image(img, [getRandomInt(50, 400)], 100, 50, 100);
-                }, 1100);
+                    p.image(img, [getRandomInt(50, 400)], 75, 85, 81);
+                }, 2000);
             })
         }
 
         if (Math.random() > 0.8) {
             p.loadImage(doodles[getRandomInt(0, 13)]).then(img => {
                 setTimeout(() => {
-                    p.image(img, [getRandomInt(50, 400)], 750, 100, 100);
-                }, 1100);
+                    p.image(img, [getRandomInt(50, 400)], 775, 85, 81);
+                }, 2000);
             })
         }
 
@@ -147,19 +166,19 @@ function sketch(p, preloaded) {
             //TÍTULO
             p.push();
             p.rotate(p.radians(getRandomInt(-4, 4)));
-            p.textLeading(60);
             p.textFont(font);
             p.textSize(60);
-            p.text(question, 150, 100, 450, 300);
+            p.textLeading(60);
+            p.text(question, 150, 200, 450, 300);
             p.pop();
 
             //MENSAGEM ALEATORIA #1
-            if (Math.random() > 0.75) {
+            if (Math.random() > 0.0) {
                 p.push();
                 p.rotate(p.radians(getRandomInt(-1, 1)));
                 p.textFont(font);
                 p.textSize(24);
-                p.text(messages[getRandomInt(0, 13)], getRandomInt(400, 500), 300);
+                p.text(messages[getRandomInt(0, 13)], getRandomInt(400, 500), 150,150);
                 p.pop();
             }
 
@@ -168,8 +187,8 @@ function sketch(p, preloaded) {
             p.rotate(p.radians(getRandomInt(-3, 3)));
             p.textFont(font);
             p.textSize(64);
-            p.text(".", 100, 325);
-            p.textSize(28 - answers[0].length / 100);
+            p.text(".", 100, 375);
+            p.textSize(36 - answers[0].length / 100);
             p.text(answers[0], 120, 350, 500, 300);
             p.pop();
 
@@ -189,7 +208,7 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 500);
-            p.textSize(28 - answers[1].length / 75);
+            p.textSize(36 - answers[1].length / 75);
             p.text(answers[1], 120, 475, 500, 300);
             p.pop();
 
@@ -209,7 +228,7 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 625);
-            p.textSize(28 - answers[2].length / 75);
+            p.textSize(36 - answers[2].length / 75);
             p.text(answers[2], 120, 600, 500, 300);
             p.pop();
 
@@ -229,16 +248,16 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 750);
-            p.textSize(28 - answers[3].length / 75);
+            p.textSize(36 - answers[3].length / 75);
             p.text(answers[3], 120, 725, 500, 300);
             p.pop();
-        }, 1500);
+        }, 3000);
 
         setTimeout(() => {
             p.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
                 console.log(`saved the canvas as ${filename}`);
             });
-        }, 2000);
+        }, 5000);
     }
 
     p.draw = () => {
@@ -281,6 +300,7 @@ function runAnswers(data) {
                 console.log(finalRoboAnswer[0]);
                 // publTweet(finalRoboAnswer[0],mainTweetId);
                 answers[3] = finalRoboAnswer[0];
+                shuffle(answers);
                 setTimeout(() => {
                     p5Instance = p5.createSketch(sketch);
                 }, 40000);
@@ -318,3 +338,6 @@ function runAnswers(data) {
 
 
 }
+
+shuffle(answers);
+p5Instance = p5.createSketch(sketch);
