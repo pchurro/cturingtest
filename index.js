@@ -16,10 +16,13 @@ const database = new Datastore('database.db');
 database.loadDatabase();
 
 var mainTweetId = 0;
-var question = "What is the future of humanity?";
-var answers = ["The future of humanity is death, destruction and all kind of unspeakable horrors", "The future of humanity relies on the stars above", "The future of humanity is not a very pleasent one", "The future of humanity is being decided right now"];
+var question;
+var answers =[];
 var testId = 'Test' + " [Q" + makeid(3) + "]";
+var finalRoboAnswer
 let p5Instance;
+
+console.log(answers);
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -93,6 +96,30 @@ function publTweet(tweet, id) {
     )
 }
 
+function publTweetPhoto(){
+    var b64content = fs.readFileSync('myCanvas.png', {encoding: 'base64'})
+
+    // first we must post the media to Twitter
+    turingBot.post('media/upload', {media_data: b64content}, function (err, data, response) {
+        // now we can assign alt text to the media, for use by screen readers and
+        // other text-based presentations and interpreters
+        var mediaIdStr = data.media_id_string
+        var meta_params = {media_id: mediaIdStr}
+
+        turingBot.post('media/metadata/create', meta_params, function (err, data, response) {
+            if (!err) {
+                // now we can reference the media and post a tweet (media will attach to the tweet)
+                var params = {status: testId, media_ids: [mediaIdStr]}
+
+                turingBot.post('statuses/update', params, function (err, data, response) {
+                    publTweet(answerMessages[getRandomInt(0,9)] + '"' + finalRoboAnswer[0] + '"', data.id_str);
+                    console.log(data)
+                })
+            }
+        })
+    })
+}
+
 async function scraper(chosenResponse) {
     const browser = await puppeteer.launch()
     const page = await browser.newPage()
@@ -124,6 +151,7 @@ let font;
 font = p5.loadFont('font.ttf');
 
 let messages = ["Subject #1 was strange...", "Subject #2 was strange...", "Subject #3 was strange...", "Subject #4 was strange...", "The lack of criativity!", "Intresting", "(???)", "WTF!?", "Suspicious...", "Weird choice of words", "AHAHAHHAHAHA", "Really?", "Good point!", "No idea what this means", "This one didn't go well...", "Exciting!"]
+let answerMessages = ["I'm pretty sure it was the 'guy' that said ", "I can't believe no one thought of ", "Surprisingly, the robot really said ", "No one would say that a human really said ", "Wow! That's incredible: ", "I couldn't help but laught at this one: ", "Seriously? Who would say this? ", "This one is incredibly profound: ", "Such a beautiful answer: "]
 
 function sketch(p, preloaded) {
 
@@ -169,11 +197,11 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(60);
             p.textLeading(60);
-            p.text(question, 150, 200, 450, 300);
+            p.text(question, 150, 175, 450, 300);
             p.pop();
 
             //MENSAGEM ALEATORIA #1
-            if (Math.random() > 0.0) {
+            if (Math.random() > 0.75) {
                 p.push();
                 p.rotate(p.radians(getRandomInt(-1, 1)));
                 p.textFont(font);
@@ -182,13 +210,16 @@ function sketch(p, preloaded) {
                 p.pop();
             }
 
+            shuffle(answers);
+            console.log("Answers in sketch: " + answers);
+
             //RESPOSTA #1
             p.push();
             p.rotate(p.radians(getRandomInt(-3, 3)));
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 375);
-            p.textSize(36 - answers[0].length / 100);
+            p.textSize(36 - answers[0].length / 15);
             p.text(answers[0], 120, 350, 500, 300);
             p.pop();
 
@@ -208,7 +239,7 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 500);
-            p.textSize(36 - answers[1].length / 75);
+            p.textSize(36 - answers[1].length / 15);
             p.text(answers[1], 120, 475, 500, 300);
             p.pop();
 
@@ -228,7 +259,7 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 625);
-            p.textSize(36 - answers[2].length / 75);
+            p.textSize(36 - answers[2].length / 15);
             p.text(answers[2], 120, 600, 500, 300);
             p.pop();
 
@@ -248,7 +279,7 @@ function sketch(p, preloaded) {
             p.textFont(font);
             p.textSize(64);
             p.text(".", 100, 750);
-            p.textSize(36 - answers[3].length / 75);
+            p.textSize(36 - answers[3].length / 15);
             p.text(answers[3], 120, 725, 500, 300);
             p.pop();
         }, 3000);
@@ -282,55 +313,30 @@ function runAnswers(data) {
             //publMainTweet(data.chosenQuestion);
             testId = 'Test' + " [Q" + makeid(3) + "]";
             question = data.chosenQuestion;
-            answers = [];
+
             var roboAnswer = scraper(data.chosenResponse);
             roboAnswer.then(function (result) {
                 database.find({chosenQuestion: data.chosenQuestion}, function (err, docs) {
                     answers[0] = docs[count - 1].answer;
                     answers[1] = docs[count - 2].answer;
                     answers[2] = docs[count - 3].answer;
-                    /*for (var i = count - 1; i > count - 4; i--) {
-                        console.log(docs[i].answer);
-                        console.log(count - i);
-                        //publTweet(docs[i].answer,mainTweetId);
-                        answers[count - i - 1] = docs[i].answer;
-                    }*/
                 });
-                var finalRoboAnswer = result.split(".");
-                console.log(finalRoboAnswer[0]);
+                finalRoboAnswer = result.split(".");
                 // publTweet(finalRoboAnswer[0],mainTweetId);
                 answers[3] = finalRoboAnswer[0];
-                shuffle(answers);
-                setTimeout(() => {
-                    p5Instance = p5.createSketch(sketch);
-                }, 40000);
+                console.log(answers[3]);
 
-                setTimeout(() => {
 
-                    var b64content = fs.readFileSync('myCanvas.png', {encoding: 'base64'})
-
-                    // first we must post the media to Twitter
-                    turingBot.post('media/upload', {media_data: b64content}, function (err, data, response) {
-                        // now we can assign alt text to the media, for use by screen readers and
-                        // other text-based presentations and interpreters
-                        var mediaIdStr = data.media_id_string
-                        var meta_params = {media_id: mediaIdStr}
-
-                        turingBot.post('media/metadata/create', meta_params, function (err, data, response) {
-                            if (!err) {
-                                // now we can reference the media and post a tweet (media will attach to the tweet)
-                                var params = {status: testId, media_ids: [mediaIdStr]}
-
-                                turingBot.post('statuses/update', params, function (err, data, response) {
-                                    console.log(data)
-                                })
-                            }
-                        })
-                    })
-                }, 45000);
             })
 
         }
+        setTimeout(() => {
+            p5Instance = p5.createSketch(sketch);
+        }, 60000);
+
+        setTimeout(() => {
+            publTweetPhoto();
+        }, 70000);
 
     });
 
@@ -339,5 +345,4 @@ function runAnswers(data) {
 
 }
 
-shuffle(answers);
-p5Instance = p5.createSketch(sketch);
+
