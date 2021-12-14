@@ -175,3 +175,10 @@ a{
     left:50%;
     transform: translateX(-50%);
 }
+
+#twitButton{
+    position: absolute;
+    top:70%;
+    right:10%;
+    width:10%;
+}
