@@ -329,14 +329,15 @@ function runAnswers(data) {
 
             })
 
-        }
-        setTimeout(() => {
-            p5Instance = p5.createSketch(sketch);
-        }, 60000);
+            setTimeout(() => {
+                p5Instance = p5.createSketch(sketch);
+            }, 60000);
 
-        setTimeout(() => {
-            publTweetPhoto();
-        }, 70000);
+            setTimeout(() => {
+                publTweetPhoto();
+            }, 70000);
+
+        }
 
     });
 
