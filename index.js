@@ -6,6 +6,15 @@ const p5 = require('node-p5');
 const fs = require('fs');
 require("dotenv").config();
 
+var util = require('util');
+var log_file = fs.createWriteStream(__dirname + '/debug.log', {flags : 'w'});
+var log_stdout = process.stdout;
+
+console.log = function(d) { //
+    log_file.write(util.format(d) + '\n');
+    log_stdout.write(util.format(d) + '\n');
+};
+
 
 const app = express();
 app.listen(3000, () => console.log('listening at 3000'));
@@ -303,12 +312,14 @@ app.post('/api', (request, response) => {
     data.timestamp = timestamp;
     database.insert(data);
     response.json(data);
+    console.log(data);
     runAnswers(data);
 });
 
 function runAnswers(data) {
     database.count({chosenQuestion: data.chosenQuestion}, function (err, count) {
         if (Number.isInteger(count / 3)) {
+            console.log("Process initiated!");
 
             //publMainTweet(data.chosenQuestion);
             testId = 'Test' + " [Q" + makeid(3) + "]";
