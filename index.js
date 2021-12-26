@@ -8,7 +8,7 @@ require("dotenv").config();
 
 var util = require('util');
 var log_file = fs.createWriteStream(__dirname + '/debug.log', {flags : 'w'});
-var log_stdout = process.stdout;
+var log_stdout = fs.createWriteStream(__dirname + '/error.log', {flags : 'w'});
 
 console.log = function(d) { //
     log_file.write(util.format(d) + '\n');
