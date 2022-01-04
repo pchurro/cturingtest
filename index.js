@@ -17,6 +17,12 @@ console.log = function(d) { //
     log_stderr.write(util.format(d) + '\n');
 };
 
+var log_file_err=fs.createWriteStream(__dirname + '/error.log',{flags:'a'});
+
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception: ' + err);
+    log_file_err.write(util.format('Caught exception: '+err) + '\n');
+});
 
 const app = express();
 app.listen(3000, () => console.log('listening at 3000'));
