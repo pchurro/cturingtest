@@ -5,7 +5,9 @@
 
 body{
     background: black;
-    font-family: Rowan;
+    font-family: Rowan, serif;
+    font-style: normal;
+    font-weight: normal;
     overflow-x: hidden;
 
 }
