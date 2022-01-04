@@ -20,8 +20,8 @@ console.log = function(d) { //
 var log_file_err=fs.createWriteStream(__dirname + '/error.log',{flags:'a'});
 
 process.on('uncaughtException', function(err) {
-    console.log('Caught exception: ' + err);
-    log_file_err.write(util.format('Caught exception: '+err) + '\n');
+    console.log('Caught exception: ' + err + "at line " + err.stack);
+    log_file_err.write(util.format('Caught exception: '+err + "at line " + err.stack) + '\n');
 });
 
 const app = express();
