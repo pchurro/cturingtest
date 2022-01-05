@@ -41,6 +41,11 @@ let p5Instance;
 
 console.log(answers);
 
+var scraperTest = scraper("Just testing");
+scraperTest.then(function (result){
+    console.log(result);
+});
+
 function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -138,8 +143,11 @@ function publTweetPhoto(){
 }
 
 async function scraper(chosenResponse) {
+    console.log("Scraper initializing");
     const browser = await puppeteer.launch()
+    console.log("Scraper launched");
     const page = await browser.newPage()
+    page.on('console', (msg) => console.log('PAGE LOG:', msg.text()));
     await page.goto('https://6b.eleuther.ai')
 
     await page.focus('.prompt-textarea')
@@ -150,6 +158,7 @@ async function scraper(chosenResponse) {
     await page.waitForTimeout(30000).then(() => console.log('Waited a second!'));
     const name = await page.$eval('.result-text', el => el.innerText)
     await browser.close()
+    console.log("name");
     return name;
 }
 
