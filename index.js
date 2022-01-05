@@ -308,13 +308,13 @@ function sketch(p, preloaded) {
             p.textSize(36 - answers[3].length / 15);
             p.text(answers[3], 120, 725, 500, 300);
             p.pop();
-        }, 3000);
+        }, 6000);
 
         setTimeout(() => {
             p.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
                 console.log(`saved the canvas as ${filename}`);
             });
-        }, 5000);
+        }, 8000);
     }
 
     p.draw = () => {
