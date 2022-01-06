@@ -188,7 +188,7 @@ function sketch(p, preloaded) {
         p.loadImage(fundos[getRandomInt(0, 7)]).then(img => {
             setTimeout(() => {
                 p.image(img, 0, 0, 675,900)
-            }, 1000);
+            }, 2000);
         })
 
 
@@ -196,7 +196,7 @@ function sketch(p, preloaded) {
             p.loadImage(doodles[getRandomInt(0, 13)]).then(img => {
                 setTimeout(() => {
                     p.image(img, [getRandomInt(50, 400)], 75, 85, 81);
-                }, 2000);
+                }, 3000);
             })
         }
 
@@ -204,7 +204,7 @@ function sketch(p, preloaded) {
             p.loadImage(doodles[getRandomInt(0, 13)]).then(img => {
                 setTimeout(() => {
                     p.image(img, [getRandomInt(50, 400)], 775, 85, 81);
-                }, 2000);
+                }, 3000);
             })
         }
 
@@ -308,13 +308,13 @@ function sketch(p, preloaded) {
             p.textSize(36 - answers[3].length / 15);
             p.text(answers[3], 120, 725, 500, 300);
             p.pop();
-        }, 6000);
+        }, 10000);
 
         setTimeout(() => {
             p.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
                 console.log(`saved the canvas as ${filename}`);
             });
-        }, 8000);
+        }, 15000);
     }
 
     p.draw = () => {
@@ -363,7 +363,7 @@ function runAnswers(data) {
 
             setTimeout(() => {
                 publTweetPhoto();
-            }, 70000);
+            }, 90000);
 
         }
 
